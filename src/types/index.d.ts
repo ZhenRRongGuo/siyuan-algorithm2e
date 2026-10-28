@@ -135,6 +135,9 @@ interface Window {
     [key: string]: any;
   };
   pseudocode: any;
+  katex?: {
+    renderToString: (tex: string, options?: { displayMode?: boolean; throwOnError?: boolean }) => string;
+  };
 };
 
 

@@ -3,7 +3,9 @@ type AlgorithmNode =
   | { type: "input"; text: string }
   | { type: "output"; text: string }
   | { type: "return"; text: string }
-  | { type: "if"; condition: string; body: AlgorithmNode[] }
+  | { type: "if"; condition: string; body: AlgorithmNode[]; elseBody?: AlgorithmNode[] }
+  | { type: "loop"; kind: "for" | "foreach" | "while"; expression: string; body: AlgorithmNode[] }
+  | { type: "comment"; text: string }
   | { type: "raw"; text: string }
 
 interface AlgorithmDocument {
@@ -33,10 +35,7 @@ function readCommand(source: string, start: number): { name: string; end: number
   if (source[start] !== "\\") return null
   const match = source.slice(start).match(/^\\([A-Za-z]+|.)/)
   if (!match) return null
-  return {
-    name: match[1],
-    end: start + match[0].length,
-  }
+  return { name: match[1], end: start + match[0].length }
 }
 
 function skipWhitespace(source: string, start: number): number {
@@ -76,15 +75,32 @@ function readGroup(source: string, start: number): GroupResult | null {
     if (source[index] === "{") depth++
     if (source[index] === "}") {
       depth--
-      if (depth === 0) {
-        return {
-          value: source.slice(open + 1, index),
-          end: index + 1,
-        }
-      }
+      if (depth === 0) return { value: source.slice(open + 1, index), end: index + 1 }
     }
   }
   return null
+}
+
+function readMathEnd(source: string, start: number): number | null {
+  const delimiter = source[start] === "$"
+    ? "$"
+    : source.startsWith("\\(", start)
+      ? "\\)"
+      : source.startsWith("\\[", start)
+        ? "\\]"
+        : null
+  if (!delimiter) return null
+
+  let index = start + delimiter.length
+  while (index < source.length) {
+    const end = source.indexOf(delimiter, index)
+    if (end < 0) return source.length
+    let slashCount = 0
+    for (let slash = end - 1; slash >= start && source[slash] === "\\"; slash--) slashCount++
+    if (slashCount % 2 === 0) return end + delimiter.length
+    index = end + delimiter.length
+  }
+  return source.length
 }
 
 function extractAlgorithmBody(source: string, warnings: string[]): string {
@@ -105,6 +121,14 @@ function extractAlgorithmBody(source: string, warnings: string[]): string {
   return source.slice(bodyStart, end.index)
 }
 
+function readCommandBody(source: string, commandEnd: number): { argument: GroupResult; body: GroupResult } | null {
+  const argument = readGroup(source, commandEnd)
+  if (!argument) return null
+  const body = readGroup(source, argument.end)
+  if (!body) return null
+  return { argument, body }
+}
+
 function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
   const nodes: AlgorithmNode[] = []
   let index = 0
@@ -122,16 +146,26 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
 
     const command = readCommand(source, index)
     if (!command) {
-      const lineEnd = source.indexOf("\n", index)
-      const end = lineEnd < 0 ? source.length : lineEnd
+      let end = index
+      while (end < source.length && source[end] !== "\\" && source[end] !== "\n") {
+        if (source[end] === "$") {
+          end = readMathEnd(source, end) ?? end + 1
+          continue
+        }
+        end++
+      }
       const text = source.slice(index, end).trim()
       if (text) nodes.push({ type: "raw", text })
-      index = lineEnd < 0 ? source.length : lineEnd + 1
+      index = end
       continue
     }
 
     const name = command.name.toLowerCase()
-    let next = readOptionalGroup(source, command.end)
+
+    if (name === ";") {
+      index = command.end
+      continue
+    }
 
     if (name === "caption") {
       const group = readGroup(source, command.end)
@@ -152,15 +186,50 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
     }
 
     if (name === "if") {
-      const condition = readGroup(source, command.end)
-      if (condition) {
-        const body = readGroup(source, condition.end)
-        if (body) {
-          nodes.push({ type: "if", condition: condition.value.trim(), body: parseContent(body.value, warnings) })
-          index = body.end
-          continue
+      const parts = readCommandBody(source, command.end)
+      if (parts) {
+        const node: Extract<AlgorithmNode, { type: "if" }> = {
+          type: "if",
+          condition: parts.argument.value.trim(),
+          body: parseContent(parts.body.value, warnings),
         }
-        warnings.push("\\If 缺少代码块")
+        let next = skipWhitespace(source, parts.body.end)
+        const elseCommand = readCommand(source, next)
+        if (elseCommand && elseCommand.name.toLowerCase() === "else") {
+          const elseBody = readGroup(source, elseCommand.end)
+          if (elseBody) {
+            node.elseBody = parseContent(elseBody.value, warnings)
+            next = elseBody.end
+          }
+        }
+        nodes.push(node)
+        index = next
+        continue
+      }
+      warnings.push("\\If 缺少条件或代码块")
+    }
+
+    if (name === "for" || name === "foreach" || name === "while") {
+      const parts = readCommandBody(source, command.end)
+      if (parts) {
+        nodes.push({
+          type: "loop",
+          kind: name,
+          expression: parts.argument.value.trim(),
+          body: parseContent(parts.body.value, warnings),
+        })
+        index = parts.body.end
+        continue
+      }
+      warnings.push(`\\${command.name} 缺少循环条件或代码块`)
+    }
+
+    if (name === "tcp" || name === "tcc") {
+      const group = readGroup(source, command.end)
+      if (group) {
+        nodes.push({ type: "comment", text: group.value.trim() })
+        index = group.end
+        continue
       }
     }
 
@@ -173,28 +242,51 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
       }
     }
 
-    const rawEnd = Math.max(next, command.end)
     const group = readGroup(source, command.end)
-    if (group) next = group.end
+    const rawEnd = group ? group.end : command.end
     warnings.push(`暂不支持命令 \\${command.name}，已保留原文`)
-    nodes.push({ type: "raw", text: source.slice(index, Math.max(rawEnd, next)).trim() })
-    index = Math.max(rawEnd, next)
+    nodes.push({ type: "raw", text: source.slice(index, rawEnd).trim() })
+    index = rawEnd
   }
 
   return nodes
 }
 
-function renderInline(value: string): string {
-  return escapeHtml(value).replace(/\\textbf\{([^{}]*)\}/g, "<strong>$1</strong>")
+function renderText(value: string): string {
+  return escapeHtml(value)
+    .replace(/\\textbf\{([^{}]*)\}/g, "<strong>$1</strong>")
+    .replace(/\\KwTo\b/g, "至")
+    .replace(/\\KwAnd\b/g, "且")
+    .replace(/\\KwOr\b/g, "或")
 }
 
-function renderLine(
-  content: string,
-  level: number,
-  kind: string,
-  config: IPseudocodeConfig,
-  state: RenderState,
-): string {
+function renderMath(tex: string, displayMode: boolean): string {
+  const katex = typeof window !== "undefined" ? window.katex : undefined
+  if (katex) {
+    try {
+      return katex.renderToString(tex, { displayMode, throwOnError: false })
+    } catch {
+      // Fall back to escaped TeX when a particular expression is unsupported.
+    }
+  }
+  return `<span class="algorithm2e-math">${escapeHtml(displayMode ? `\\[${tex}\\]` : `$${tex}$`)}</span>`
+}
+
+function renderInline(value: string): string {
+  const mathPattern = /\$([\s\S]*?)\$|\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]/g
+  let result = ""
+  let lastIndex = 0
+  for (const match of value.matchAll(mathPattern)) {
+    const index = match.index ?? 0
+    result += renderText(value.slice(lastIndex, index))
+    const tex = match[1] ?? match[2] ?? match[3] ?? ""
+    result += renderMath(tex, Boolean(match[3]))
+    lastIndex = index + match[0].length
+  }
+  return result + renderText(value.slice(lastIndex))
+}
+
+function renderLine(content: string, level: number, kind: string, config: IPseudocodeConfig, state: RenderState): string {
   state.line++
   const lineNumber = config.lineNumber === "true"
     ? `<span class="algorithm2e-line-number">${state.line}</span>`
@@ -213,12 +305,24 @@ function renderNodes(nodes: AlgorithmNode[], level: number, config: IPseudocodeC
         return renderLine(`<span class="algorithm2e-keyword">输出：</span>${renderInline(node.text)}`, level, "output", config, state)
       case "return":
         return renderLine(`<span class="algorithm2e-keyword">返回</span> ${renderInline(node.text)}`, level, "return", config, state)
+      case "comment":
+        return renderLine(`<span class="algorithm2e-comment-marker">注：</span>${renderInline(node.text)}`, level, "comment", config, state)
+      case "loop": {
+        const keyword = node.kind === "foreach" ? "对每个" : node.kind === "while" ? "当" : "对于"
+        const ending = config.blockEnding === "true"
+          ? renderLine(`<span class="algorithm2e-keyword">结束${node.kind === "while" ? "当" : "循环"}</span>`, level, "end", config, state)
+          : ""
+        return `${renderLine(`<span class="algorithm2e-keyword">${keyword}</span> ${renderInline(node.expression)}：`, level, "loop", config, state)}${renderNodes(node.body, level + 1, config, state)}${ending}`
+      }
       case "if": {
         const body = renderNodes(node.body, level + 1, config, state)
+        const elsePart = node.elseBody
+          ? `${renderLine(`<span class="algorithm2e-keyword">否则</span>`, level, "else", config, state)}${renderNodes(node.elseBody, level + 1, config, state)}`
+          : ""
         const ending = config.blockEnding === "true"
           ? renderLine(`<span class="algorithm2e-keyword">结束如果</span>`, level, "end", config, state)
           : ""
-        return `${renderLine(`<span class="algorithm2e-keyword">如果</span> ${renderInline(node.condition)}：`, level, "if", config, state)}${body}${ending}`
+        return `${renderLine(`<span class="algorithm2e-keyword">如果</span> ${renderInline(node.condition)}：`, level, "if", config, state)}${body}${elsePart}${ending}`
       }
       case "raw":
         return node.text.split(/\r?\n/).map((line) => renderLine(renderInline(line), level, "raw", config, state)).join("")

@@ -106,8 +106,17 @@
 }
 
 .algorithm2e-caption-label,
-.algorithm2e-keyword {
+.algorithm2e-keyword,
+.algorithm2e-comment-marker {
     font-weight: 600;
+}
+
+.algorithm2e-comment-marker {
+    color: var(--b3-theme-on-surface-light);
+}
+
+.algorithm2e-math {
+    font-family: var(--b3-font-family-code);
 }
 
 .algorithm2e-line {

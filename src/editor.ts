@@ -1,5 +1,5 @@
 // CodeMirror 6
-import { autocompletion, closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete"; // autocompletion, completionKeymap
+import { autocompletion, closeBracketsKeymap } from "@codemirror/autocomplete"; // autocompletion, completionKeymap
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import {
     latexLanguage, 

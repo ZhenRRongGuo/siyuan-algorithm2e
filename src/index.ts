@@ -69,7 +69,7 @@ export default class PseudocodePlugin extends Plugin {
       filter: ["algorithm2e", "伪代码", "weidaima"],
       id: "algorithm2e",
       html: `<div class="b3-list-item__first"><svg class="b3-list-item__graphic"><use xlink:href="#iconCode"></use></svg><span class="b3-list-item__text">${this.i18n.pseudocode}</span></div>`,
-      callback: (protyle, nodeElement) => {
+      callback: (_protyle, nodeElement) => {
         const code = "";
         const blockID = nodeElement.getAttribute("data-node-id");
         const pseudocodeConfig = getDefaultPseudocodeConfig();

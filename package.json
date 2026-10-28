@@ -1,0 +1,61 @@
+{
+  "name": "siyuan-algorithm2e",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "This is a plugin for siyuan",
+  "author": "",
+  "license": "MIT",
+  "homepage": "",
+  "repository": "",
+  "scripts": {
+    "dev": "pnpm dev:daemon && pnpm dev:index",
+    "dev:index": "vite build --watch",
+    "dev:daemon": "vite build --config vite.daemon.config.ts --mode=development",
+    "dev:index:watch": "vite build --mode=development --watch",
+    "dev:daemon:watch": "vite build --config vite.daemon.config.ts --mode=development --watch",
+    "release": "node ./release.js",
+    "release:manual": "node ./release.js --mode=manual",
+    "release:patch": "node ./release.js --mode=patch",
+    "release:minor": "node ./release.js --mode=minor",
+    "release:major": "node ./release.js --mode=major",
+    "build": "pnpm build:daemon && pnpm build:index",
+    "build:index": "vite build",
+    "build:daemon": "vite build --config vite.daemon.config.ts"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.28.4",
+    "@codemirror/autocomplete": "^6.19.1",
+    "@codemirror/commands": "^6.10.0",
+    "@codemirror/language": "^6.11.3",
+    "@codemirror/lint": "^6.9.1",
+    "@codemirror/search": "^6.5.11",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.38.6",
+    "@uiw/codemirror-theme-vscode": "^4.25.2",
+    "codemirror-lang-latex": "^0.2.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.8.1",
+    "@types/node": "^20.2.0",
+    "@vue/tsconfig": "^0.7.0",
+    "eslint": "^9.22.0",
+    "eslint-plugin-format": "^1.0.1",
+    "eslint-plugin-perfectionist": "^4.2.0",
+    "fast-glob": "^3.2.12",
+    "glob": "^11.0.1",
+    "minimist": "^1.2.8",
+    "rollup-plugin-livereload": "^2.0.5",
+    "sass": "^1.62.1",
+    "siyuan": "1.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4",
+    "vite": "^6.2.1",
+    "vite-plugin-static-copy": "^0.15.0",
+    "vite-plugin-zip-pack": "^1.0.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "rollup": "4.52.5"
+    }
+  }
+}

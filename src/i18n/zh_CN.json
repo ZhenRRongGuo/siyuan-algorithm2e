@@ -1,0 +1,20 @@
+{
+  "pseudocode": "伪代码",
+  "noMessage": "无信息",
+  "compile": "编译",
+  "compiling": "编译中",
+  "compileSuccessButton": "成功 & 退出",
+  "compileErrorButton": "错误信息",
+  "editPseudocode": "编辑伪代码",
+  "turnOnPseudocodeView": "开启伪代码视图",
+  "turnOffPseudocodeView": "关闭伪代码视图",
+  "transformPseudocode": "转换为嵌入式伪代码",
+  "algorithmLabelPlaceholder": "算法标签",
+  "algorithmNumberPlaceholder": "自动编号",
+  "withLineNumber": "显示行号",
+  "withoutLineNumber": "不显示行号",
+  "withBlockEnding": "显示块结束符",
+  "withoutBlockEnding": "不显示块结束符",
+  "withScopeLine": "显示作用域线",
+  "withoutScopeLine": "不显示作用域线"
+}

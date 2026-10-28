@@ -1,0 +1,30 @@
+{
+  "name": "siyuan-algorithm2e",
+  "author": "",
+  "url": "",
+  "version": "0.1.0",
+  "minAppVersion": "3.0.0",
+  "disabledInPublish": false,
+  "backends": [
+    "all"
+  ],
+  "frontends": [
+    "all"
+  ],
+  "displayName": {
+    "default": "Algorithm2e Pseudocode",
+    "zh_CN": "Algorithm2e 伪代码"
+  },
+  "description": {
+    "default": "Offline algorithm2e pseudocode rendering for SiYuan",
+    "zh_CN": "在思源笔记中离线渲染 algorithm2e 伪代码"
+  },
+  "readme": {
+    "default": "README.md",
+    "zh_CN": "README_zh_CN.md"
+  },
+  "funding": {
+    "custom": []
+  },
+  "keywords": []
+}

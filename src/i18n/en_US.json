@@ -1,0 +1,20 @@
+{
+  "pseudocode": "Pseudocode",
+  "noMessage": "no message",
+  "compile": "compile",
+  "compiling": "compiling",
+  "compileSuccessButton": "Success & Quit",
+  "compileErrorButton": "Error Message",
+  "editPseudocode": "Edit Pseudocode",
+  "turnOnPseudocodeView": "Enable Pseudocode View",
+  "turnOffPseudocodeView": "Disable Pseudocode View",
+  "transformPseudocode": "Convert to Embed Pseudocode",
+  "algorithmLabelPlaceholder": "Algorithm Label",
+  "algorithmNumberPlaceholder": "Auto Number",
+  "withLineNumber": "Show Line Number",
+  "withoutLineNumber": "Without Line Number",
+  "withBlockEnding": "Show Block Ending",
+  "withoutBlockEnding": "Without Block Ending",
+  "withScopeLine": "Show Scope Line",
+  "withoutScopeLine": "Without Scope Line"
+}

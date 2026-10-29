@@ -1,6 +1,4 @@
-<p align="center">
-<img alt="algorithm2e" src="./icon.png" width="160px">
-<br>
+![algorithm2e](./icon.png)
 
 <p align="center">
     <strong>思源笔记插件</strong>
@@ -54,24 +52,9 @@
 </details>
 
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">LaTeX效果</th>
-      <th align="center">Siyuan效果</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example-latex.png" width="350">
-      </td>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example-sy.png" width="350">
-      </td>
-    </tr>
-  </tbody>
-</table>
+| LaTeX效果 | Siyuan效果 |
+| :---: | :---: |
+| ![LaTeX效果](./assets/example-latex.png) | ![Siyuan效果](./assets/example-sy.png) |
 
 <details>
 <summary> 伪代码源码（数学渲染展示） </summary>
@@ -89,24 +72,9 @@
 ```
 </details>
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">LaTeX效果</th>
-      <th align="center">Siyuan效果</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-latex.png" width="350">
-      </td>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-sy.png" width="350">
-      </td>
-    </tr>
-  </tbody>
-</table>
+| LaTeX效果 | Siyuan效果 |
+| :---: | :---: |
+| ![LaTeX数学效果](./assets/example_math-latex.png) | ![Siyuan数学效果](./assets/example_math-sy.png) |
 
 
 <details>
@@ -129,24 +97,9 @@
 </details>
 
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">LaTeX效果</th>
-      <th align="center">Siyuan效果</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_note-latex.png" width="350">
-      </td>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_note-sy.png" width="350">
-      </td>
-    </tr>
-  </tbody>
-</table>
+| LaTeX效果 | Siyuan效果 |
+| :---: | :---: |
+| ![LaTeX注释效果](./assets/example_note-latex.png) | ![Siyuan注释效果](./assets/example_note-sy.png) |
 
 <details>
 <summary> 伪代码源码（嵌套展示） </summary>
@@ -166,24 +119,9 @@
 ```
 </details>
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">LaTeX效果</th>
-      <th align="center">Siyuan效果</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_nest-latex.png" width="350">
-      </td>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_nest-sy.png" width="350">
-      </td>
-    </tr>
-  </tbody>
-</table>
+| LaTeX效果 | Siyuan效果 |
+| :---: | :---: |
+| ![LaTeX嵌套效果](./assets/example_nest-latex.png) | ![Siyuan嵌套效果](./assets/example_nest-sy.png) |
 
 ## 功能
 

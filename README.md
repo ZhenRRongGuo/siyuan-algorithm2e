@@ -1,6 +1,4 @@
-<p align="center">
-<img alt="algorithm2e" src="./icon.png" width="160px">
-<br>
+![algorithm2e](./icon.png)
 
 <p align="center">
     <strong>SiYuan Note Plugin</strong>
@@ -54,24 +52,9 @@
 </details>
 
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">LaTeX Result</th>
-      <th align="center">Siyuan Result</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example-latex.png" width="350">
-      </td>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example-sy.png" width="350">
-      </td>
-    </tr>
-  </tbody>
-</table>
+| LaTeX Result | Siyuan Result |
+| :---: | :---: |
+| ![LaTeX result](./assets/example-latex.png) | ![Siyuan result](./assets/example-sy.png) |
 
 <details>
 <summary> Pseudocode source (math rendering demonstration) </summary>
@@ -89,24 +72,9 @@
 ```
 </details>
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">LaTeX Result</th>
-      <th align="center">Siyuan Result</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-latex.png" width="350">
-      </td>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-sy.png" width="350">
-      </td>
-    </tr>
-  </tbody>
-</table>
+| LaTeX Result | Siyuan Result |
+| :---: | :---: |
+| ![LaTeX math result](./assets/example_math-latex.png) | ![Siyuan math result](./assets/example_math-sy.png) |
 
 
 <details>
@@ -129,24 +97,9 @@
 </details>
 
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">LaTeX Result</th>
-      <th align="center">Siyuan Result</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_note-latex.png" width="350">
-      </td>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_note-sy.png" width="350">
-      </td>
-    </tr>
-  </tbody>
-</table>
+| LaTeX Result | Siyuan Result |
+| :---: | :---: |
+| ![LaTeX comment result](./assets/example_note-latex.png) | ![Siyuan comment result](./assets/example_note-sy.png) |
 
 <details>
 <summary> Pseudocode source (nesting demonstration) </summary>
@@ -166,24 +119,9 @@
 ```
 </details>
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">LaTeX Result</th>
-      <th align="center">Siyuan Result</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_nest-latex.png" width="350">
-      </td>
-      <td align="center" valign="middle">
-        <img src="https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_nest-sy.png" width="350">
-      </td>
-    </tr>
-  </tbody>
-</table>
+| LaTeX Result | Siyuan Result |
+| :---: | :---: |
+| ![LaTeX nesting result](./assets/example_nest-latex.png) | ![Siyuan nesting result](./assets/example_nest-sy.png) |
 
 ## Features
 

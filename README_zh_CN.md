@@ -64,10 +64,10 @@
   <tbody>
     <tr>
       <td align="center" valign="middle">
-        <img src="assets/example-latex.png"  width="350">
+        <img src="./assets/example-latex.png"  width="350">
       </td>
       <td align="center" valign="middle">
-        <img src="assets/example-sy.png"  width="350">
+        <img src="./assets/example-sy.png"  width="350">
       </td>
     </tr>
   </tbody>
@@ -99,10 +99,10 @@
   <tbody>
     <tr>
       <td align="center" valign="middle">
-        <img src="assets/example_math-latex.png"  width="350">
+        <img src="./assets/example_math-latex.png"  width="350">
       </td>
       <td align="center" valign="middle">
-        <img src="assets/example_math-sy.png"  width="350">
+        <img src="./assets/example_math-sy.png"  width="350">
       </td>
     </tr>
   </tbody>
@@ -139,10 +139,10 @@
   <tbody>
     <tr>
       <td align="center" valign="middle">
-        <img src="assets/example_note-latex.png"  width="350">
+        <img src="./assets/example_note-latex.png"  width="350">
       </td>
       <td align="center" valign="middle">
-        <img src="assets/example_note-sy.png"  width="350">
+        <img src="./assets/example_note-sy.png"  width="350">
       </td>
     </tr>
   </tbody>
@@ -176,10 +176,10 @@
   <tbody>
     <tr>
       <td align="center" valign="middle">
-        <img src="assets/example_nest-latex.png"  width="350">
+        <img src="./assets/example_nest-latex.png"  width="350">
       </td>
       <td align="center" valign="middle">
-        <img src="assets/example_nest-sy.png"  width="350">
+        <img src="./assets/example_nest-sy.png"  width="350">
       </td>
     </tr>
   </tbody>

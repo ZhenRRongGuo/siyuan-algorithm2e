@@ -57,6 +57,10 @@ export default defineConfig(({
             dest: "./",
           },
           {
+            src: "./assets/**",
+            dest: "./assets/",
+          },
+          {
             src: "./icon.png",
             dest: "./",
           },
@@ -122,6 +126,7 @@ export default defineConfig(({
                     const files = await fg([
                       "src/i18n/*.json",
                       "./README*.md",
+                      "./assets/**",
                       "./plugin.json",
                     ])
                     for (const file of files) {

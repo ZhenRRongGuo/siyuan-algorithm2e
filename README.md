@@ -1,4 +1,6 @@
-![algorithm2e](./icon.png)
+<p align="center">
+<img alt="Pseudocode" src="./icon.png" width="160px">
+<br>
 
 <p align="center">
     <strong>SiYuan Note Plugin</strong>
@@ -75,6 +77,7 @@
 | LaTeX Result | Siyuan Result |
 | :---: | :---: |
 | ![LaTeX math result](./assets/example_math-latex.png) | ![Siyuan math result](./assets/example_math-sy.png) |
+| ![LaTeX数学效果](https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-latex.png) | ![Siyuan数学效果](https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-sy.png) |
 
 
 <details>

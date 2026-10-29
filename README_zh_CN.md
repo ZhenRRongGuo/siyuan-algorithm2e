@@ -1,4 +1,6 @@
-![algorithm2e](./icon.png)
+<p align="center">
+<img alt="Pseudocode" src="./icon.png" width="160px">
+<br>
 
 <p align="center">
     <strong>思源笔记插件</strong>
@@ -75,6 +77,7 @@
 | LaTeX效果 | Siyuan效果 |
 | :---: | :---: |
 | ![LaTeX数学效果](./assets/example_math-latex.png) | ![Siyuan数学效果](./assets/example_math-sy.png) |
+| ![LaTeX数学效果](https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-latex.png) | ![Siyuan数学效果](https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-sy.png) |
 
 
 <details>

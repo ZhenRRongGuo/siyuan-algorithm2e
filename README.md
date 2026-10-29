@@ -54,9 +54,24 @@
 </details>
 
 
-| LaTeX Result | Siyuan Result |
-| :---: | :---: |
-| ![LaTeX result](./assets/example-latex.png) | ![Siyuan result](./assets/example-sy.png) |
+<table>
+  <thead>
+    <tr>
+      <th align="center">LaTeX Result</th>
+      <th align="center">Siyuan Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example-latex-jmEQexp.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example-sy-rNf96zq.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 <details>
 <summary> Pseudocode source (math rendering demonstration) </summary>
@@ -74,10 +89,24 @@
 ```
 </details>
 
-| LaTeX Result | Siyuan Result |
-| :---: | :---: |
-| ![LaTeX math result](./assets/example_math-latex.png) | ![Siyuan math result](./assets/example_math-sy.png) |
-| ![LaTeX数学效果](https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-latex.png) | ![Siyuan数学效果](https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-sy.png) |
+<table>
+  <thead>
+    <tr>
+      <th align="center">LaTeX Result</th>
+      <th align="center">Siyuan Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_math-latex-qydAcE7.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_math-sy-nvhIV97.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 
 <details>
@@ -100,9 +129,24 @@
 </details>
 
 
-| LaTeX Result | Siyuan Result |
-| :---: | :---: |
-| ![LaTeX comment result](./assets/example_note-latex.png) | ![Siyuan comment result](./assets/example_note-sy.png) |
+<table>
+  <thead>
+    <tr>
+      <th align="center">LaTeX Result</th>
+      <th align="center">Siyuan Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_note-latex-jxjWjqi.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_note-sy-gsF4zMV.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 <details>
 <summary> Pseudocode source (nesting demonstration) </summary>
@@ -122,9 +166,24 @@
 ```
 </details>
 
-| LaTeX Result | Siyuan Result |
-| :---: | :---: |
-| ![LaTeX nesting result](./assets/example_nest-latex.png) | ![Siyuan nesting result](./assets/example_nest-sy.png) |
+<table>
+  <thead>
+    <tr>
+      <th align="center">LaTeX Result</th>
+      <th align="center">Siyuan Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_nest-latex-YYpLIUh.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_nest-sy-6scXwUF.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## Features
 

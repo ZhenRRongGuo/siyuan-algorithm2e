@@ -54,9 +54,24 @@
 </details>
 
 
-| LaTeX效果 | Siyuan效果 |
-| :---: | :---: |
-| ![LaTeX效果](./assets/example-latex.png) | ![Siyuan效果](./assets/example-sy.png) |
+<table>
+  <thead>
+    <tr>
+      <th align="center">LaTeX效果</th>
+      <th align="center">Siyuan效果</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example-latex-jmEQexp.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example-sy-rNf96zq.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 <details>
 <summary> 伪代码源码（数学渲染展示） </summary>
@@ -74,10 +89,24 @@
 ```
 </details>
 
-| LaTeX效果 | Siyuan效果 |
-| :---: | :---: |
-| ![LaTeX数学效果](./assets/example_math-latex.png) | ![Siyuan数学效果](./assets/example_math-sy.png) |
-| ![LaTeX数学效果](https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-latex.png) | ![Siyuan数学效果](https://raw.githubusercontent.com/ZhenRRongGuo/siyuan-algorithm2e/main/assets/example_math-sy.png) |
+<table>
+  <thead>
+    <tr>
+      <th align="center">LaTeX效果</th>
+      <th align="center">Siyuan效果</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_math-latex-qydAcE7.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_math-sy-nvhIV97.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 
 <details>
@@ -100,9 +129,24 @@
 </details>
 
 
-| LaTeX效果 | Siyuan效果 |
-| :---: | :---: |
-| ![LaTeX注释效果](./assets/example_note-latex.png) | ![Siyuan注释效果](./assets/example_note-sy.png) |
+<table>
+  <thead>
+    <tr>
+      <th align="center">LaTeX效果</th>
+      <th align="center">Siyuan效果</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_note-latex-jxjWjqi.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_note-sy-gsF4zMV.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 <details>
 <summary> 伪代码源码（嵌套展示） </summary>
@@ -122,9 +166,24 @@
 ```
 </details>
 
-| LaTeX效果 | Siyuan效果 |
-| :---: | :---: |
-| ![LaTeX嵌套效果](./assets/example_nest-latex.png) | ![Siyuan嵌套效果](./assets/example_nest-sy.png) |
+<table>
+  <thead>
+    <tr>
+      <th align="center">LaTeX效果</th>
+      <th align="center">Siyuan效果</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_nest-latex-YYpLIUh.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+      <td align="center" valign="middle">
+        <img src="https://b3logfile.com/file/2026/10/example_nest-sy-6scXwUF.png?imageView2/2/interlace/1/format/webp"  width="350">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## 功能
 

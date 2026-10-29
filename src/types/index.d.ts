@@ -128,6 +128,11 @@ interface Window {
       appearance: {
         mode: number;
       };
+      /** Editor configuration exposed by SiYuan. */
+      editor: {
+        /** KaTeX macro definitions stored by SiYuan as a JSON string. */
+        katexMacros?: string;
+      };
       readonly: boolean;
     }
   };
@@ -136,7 +141,11 @@ interface Window {
   };
   pseudocode: any;
   katex?: {
-    renderToString: (tex: string, options?: { displayMode?: boolean; throwOnError?: boolean }) => string;
+    renderToString: (tex: string, options?: {
+      displayMode?: boolean;
+      throwOnError?: boolean;
+      macros?: Record<string, string>;
+    }) => string;
   };
 };
 

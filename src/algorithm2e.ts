@@ -353,6 +353,28 @@ function renderText(value: string, labels: Algorithm2eLabels): string {
     .replace(/\\KwOr\b/g, `<span class="algorithm2e-keyword">${escapeHtml(labels.kwOr)}</span>`)
 }
 
+function getSiyuanKatexMacros(): Record<string, string> | undefined {
+  const rawMacros = typeof window !== "undefined"
+    ? window.siyuan?.config?.editor?.katexMacros
+    : undefined
+  if (!rawMacros) return undefined
+
+  try {
+    const parsed = typeof rawMacros === "string" ? JSON.parse(rawMacros) : rawMacros
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return undefined
+
+    const macros: Record<string, string> = {}
+    Object.entries(parsed).forEach(([name, value]) => {
+      if (typeof value === "string") macros[name] = value
+    })
+    return Object.keys(macros).length > 0 ? macros : undefined
+  } catch {
+    // An invalid global macro setting should not prevent the algorithm block
+    // from rendering; KaTeX will fall back to its normal command set.
+    return undefined
+  }
+}
+
 function renderMath(tex: string, displayMode: boolean): string {
   // Keep norm delimiters as literal ASCII bars. Some fonts used by SiYuan
   // render the Unicode double-bar glyph (∥) as two slashes.
@@ -362,7 +384,12 @@ function renderMath(tex: string, displayMode: boolean): string {
   const katex = typeof window !== "undefined" ? window.katex : undefined
   if (katex) {
     try {
-      return katex.renderToString(normalizedTex, { displayMode, throwOnError: false })
+      const macros = getSiyuanKatexMacros()
+      return katex.renderToString(normalizedTex, {
+        displayMode,
+        throwOnError: false,
+        ...(macros ? { macros } : {}),
+      })
     } catch {
       // Fall back to escaped TeX when a particular expression is unsupported.
     }

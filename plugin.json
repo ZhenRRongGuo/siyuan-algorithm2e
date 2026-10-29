@@ -2,8 +2,6 @@
   "name": "siyuan-algorithm2e",
   "author": "Zerina",
   "url": "https://github.com/ZhenRRongGuo/siyuan-algorithm2e",
-  "homepage": "https://github.com/ZhenRRongGuo/siyuan-algorithm2e",
-  "repository": "https://github.com/ZhenRRongGuo/siyuan-algorithm2e",
   "version": "0.1.0",
   "minAppVersion": "3.0.0",
   "disabledInPublish": false,

@@ -5,8 +5,8 @@
   "description": "This is a plugin for siyuan",
   "author": "",
   "license": "MIT",
-  "homepage": "",
-  "repository": "",
+  "homepage": "https://github.com/ZhenRRongGuo/siyuan-algorithm2e",
+  "repository": "https://github.com/ZhenRRongGuo/siyuan-algorithm2e",
   "scripts": {
     "dev": "pnpm dev:daemon && pnpm dev:index",
     "dev:index": "vite build --watch",

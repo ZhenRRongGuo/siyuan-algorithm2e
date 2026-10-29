@@ -19,6 +19,18 @@
         cursor: grab;
     }
 
+    .edit-dialog-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .edit-dialog-toolbar-title {
+        color: var(--b3-theme-on-surface-light);
+        font-weight: 600;
+    }
+
     .edit-dialog-container {
         padding: 0 24px;
         display: flex;
@@ -91,11 +103,38 @@
 }
 
 .algorithm2e-root {
+    padding: 0.75rem 1rem;
+    line-height: 1.6;
+    font-family: var(--algorithm2e-font-english), var(--algorithm2e-font-chinese), serif;
+}
+
+.algorithm2e-root[data-style="rounded"] {
     border: 1px solid var(--b3-border-color);
     border-radius: var(--b3-border-radius);
-    padding: 0.75rem 1rem;
     background: var(--b3-theme-background);
-    line-height: 1.6;
+}
+
+.algorithm2e-root[data-style="three-line"] {
+    border-top: 3px solid var(--b3-theme-on-background);
+    border-bottom: 3px solid var(--b3-theme-on-background);
+    background: transparent;
+    border-radius: 0;
+    box-sizing: border-box;
+    width: calc(100% + 2rem);
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+}
+
+.algorithm2e-root[data-style="three-line"] .algorithm2e-caption {
+    border-bottom: 1.5px solid var(--b3-theme-on-background);
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.45rem;
 }
 
 .algorithm2e-caption {
@@ -115,15 +154,37 @@
     color: var(--b3-theme-on-surface-light);
 }
 
+.algorithm2e-inline-comment {
+    margin-left: 1.5em;
+    color: var(--b3-theme-on-surface-light);
+}
+
+.algorithm2e-content {
+    position: relative;
+    display: block;
+    flex: 1 1 auto;
+}
+
+.algorithm2e-right-comment {
+    position: absolute;
+    right: 0;
+    margin-left: 0;
+    text-align: right;
+}
+
 .algorithm2e-math {
-    font-family: var(--b3-font-family-code);
+    font-family: var(--algorithm2e-font-math), "Times New Roman", serif !important;
+}
+
+.algorithm2e-root .katex,
+.algorithm2e-root .katex * {
+    font-family: var(--algorithm2e-font-math), "Times New Roman", serif !important;
 }
 
 .algorithm2e-line {
     display: flex;
     align-items: baseline;
     min-height: 1.6em;
-    padding-left: calc(var(--algorithm2e-level) * 1.5em);
 }
 
 .algorithm2e-line-number {
@@ -136,8 +197,21 @@
 
 .algorithm2e-content {
     min-width: 0;
+    padding-left: calc(var(--algorithm2e-level) * 1.5em);
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+}
+
+.algorithm2e-scope-line .algorithm2e-content {
+    background-image: repeating-linear-gradient(
+        to right,
+        var(--b3-border-color) 0,
+        var(--b3-border-color) 1px,
+        transparent 1px,
+        transparent 1.5em
+    );
+    background-repeat: no-repeat;
+    background-size: calc(var(--algorithm2e-level) * 1.5em) 100%;
 }
 
 .algorithm2e-diagnostics {
@@ -146,6 +220,114 @@
     color: var(--b3-theme-error);
     background: color-mix(in srgb, var(--b3-theme-error) 10%, transparent);
     font-size: 0.9em;
+}
+
+.algorithm2e-settings-editor {
+    width: 100%;
+}
+
+.algorithm2e-settings-preset {
+    margin-bottom: 0.75rem;
+    width: 100%;
+}
+
+.algorithm2e-settings-style-label,
+.algorithm2e-settings-preset-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--b3-theme-on-surface-light);
+    font-weight: 600;
+}
+
+.algorithm2e-settings-style-label {
+    margin-top: 0.25rem;
+}
+
+.algorithm2e-settings-style {
+    width: 100%;
+    margin-bottom: 0.75rem;
+}
+
+.algorithm2e-settings-scope-label,
+.algorithm2e-settings-font-title {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--b3-theme-on-surface-light);
+    font-weight: 600;
+}
+
+.algorithm2e-settings-scope {
+    width: 100%;
+    margin-bottom: 0.75rem;
+}
+
+.algorithm2e-settings-render-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.algorithm2e-settings-render-option {
+    min-width: 0;
+}
+
+.algorithm2e-settings-render-option-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--b3-theme-on-surface-light);
+    font-weight: 600;
+}
+
+.algorithm2e-settings-render-option .b3-select {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+    .algorithm2e-settings-render-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+.algorithm2e-settings-font-title {
+    margin-top: 0.25rem;
+}
+
+.algorithm2e-settings-font-row {
+    display: grid;
+    grid-template-columns: minmax(8rem, 1fr) minmax(12rem, 2fr);
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.45rem;
+}
+
+.algorithm2e-settings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.algorithm2e-settings-table th,
+.algorithm2e-settings-table td {
+    border-bottom: 1px solid var(--b3-border-color);
+    padding: 0.4rem;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.algorithm2e-settings-table th {
+    color: var(--b3-theme-on-surface-light);
+    font-weight: 600;
+}
+
+.algorithm2e-settings-table td:first-child {
+    width: 45%;
+    font-family: var(--b3-font-family-code);
+}
+
+.algorithm2e-settings-table input {
+    box-sizing: border-box;
+    width: 100%;
 }
 
 html[data-theme-mode="dark"] .code-block[custom-view="algorithm2e"] .pseudocode-container {

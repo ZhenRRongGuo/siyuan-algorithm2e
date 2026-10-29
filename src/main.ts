@@ -1,5 +1,6 @@
 import { fetchPost, fetchSyncPost } from "@/utils/fetch";
 import { compilePseudocode } from "@/pseudocode";
+import { getAlgorithm2eLabels, getDefaultAlgorithm2eSettings } from "@/settings";
 
 export function turnOnAllPseudocodeView() {
   document.querySelectorAll(".code-block[data-type='NodeCodeBlock'][custom-view='algorithm2e']").forEach((blockElement: HTMLElement) => {
@@ -61,7 +62,7 @@ export function setAutoCompileMuatationObserver(element: HTMLElement): MutationO
 }
 
 export function getPlaceholderContent(errorMessage: string): string {
-  let content = `<div class="ft__error" align="center">pseudocode render error:<br>${errorMessage}</div>`;
+  let content = `<div class="ft__error" align="center">algorithm2e render error:<br>${errorMessage}</div>`;
   return content;
 }
 
@@ -75,11 +76,7 @@ export function updatePseudocodeBlockData(blockID: string, code: string, config:
       id: blockID,
       attrs: {
         "custom-view": config.view,
-        "custom-algorithm-label": config.algorithmLabel,
         "custom-algorithm-number": config.algorithmNumber,
-        "custom-line-number": config.lineNumber,
-        "custom-block-ending": config.blockEnding,
-        "custom-scope-line": config.scopeLine,
       },
     }, () => {
       callback();
@@ -132,11 +129,11 @@ export function updatePseudocodeViewAttribute(blockID: string, view: string) {
 export function getDefaultPseudocodeConfig(): IPseudocodeConfig {
   return {
     view: "algorithm2e",
-    algorithmLabel: "Algorithm",
+    algorithmLabel: getAlgorithm2eLabels().algorithm,
     algorithmNumber: "",
-    lineNumber: "true",
-    blockEnding: "false",
-    scopeLine: "false",
+    lineNumber: getDefaultAlgorithm2eSettings().lineNumber ? "true" : "false",
+    blockEnding: getDefaultAlgorithm2eSettings().blockEnding ? "true" : "false",
+    scopeLine: getDefaultAlgorithm2eSettings().scopeLine ? "true" : "false",
     _defaultAlgorithmNumber: "1",
   }
 }
@@ -149,11 +146,7 @@ export async function getBlockPseudocodeConfigByID(blockID: string): Promise<IPs
   };
   if (response.data) {
     config.view = response.data["custom-view"] || "";
-    config.algorithmLabel = response.data["custom-algorithm-label"] || config.algorithmLabel;
     config.algorithmNumber = response.data["custom-algorithm-number"] || config.algorithmNumber;
-    config.lineNumber = response.data["custom-line-number"] || config.lineNumber;
-    config.blockEnding = response.data["custom-block-ending"] || config.blockEnding;
-    config.scopeLine = response.data["custom-scope-line"] || config.scopeLine;
   }
   return config;
 }
@@ -161,11 +154,7 @@ export async function getBlockPseudocodeConfigByID(blockID: string): Promise<IPs
 export function getBlockPseudocodeConfigByElement(blockElement: HTMLElement): IPseudocodeConfig {
   const config = getDefaultPseudocodeConfig();
   config.view = blockElement.getAttribute("custom-view") || "";
-  config.algorithmLabel = blockElement.getAttribute("custom-algorithm-label") || config.algorithmLabel;
   config.algorithmNumber = blockElement.getAttribute("custom-algorithm-number") || config.algorithmNumber;
-  config.lineNumber = blockElement.getAttribute("custom-line-number") || config.lineNumber;
-  config.blockEnding = blockElement.getAttribute("custom-block-ending") || config.blockEnding;
-  config.scopeLine = blockElement.getAttribute("custom-scope-line") || config.scopeLine;
   return config;
 }
 

@@ -1,6 +1,7 @@
 import {
   Dialog,
   Plugin,
+  Setting,
   getFrontend,
   fetchPost,
   IWebSocketData,
@@ -23,6 +24,16 @@ import {
   turnOnAllPseudocodeView,
   turnOffAllPseudocodeView,
 } from "@/main";
+import {
+  Algorithm2eLabels,
+  Algorithm2eFonts,
+  Algorithm2ePreset,
+  Algorithm2eStyle,
+  LABEL_KEYS,
+  getDefaultAlgorithm2eSettings,
+  labelsForPreset,
+  setAlgorithm2eSettings,
+} from "@/settings";
 
 let PluginInfo = {
   version: '',
@@ -55,6 +66,7 @@ export default class PseudocodePlugin extends Plugin {
   private _globalKeyDownHandler;
 
   async onload() {
+    await this.loadRenderSettings();
     this.initMetaInfo();
 
     this.setPdfScript();
@@ -102,8 +114,279 @@ export default class PseudocodePlugin extends Plugin {
     if (this._globalKeyDownHandler) document.documentElement.removeEventListener("keydown", this._globalKeyDownHandler);
   }
 
-  // openSetting() {
-  // }
+  private async loadRenderSettings() {
+    try {
+      const stored = await this.loadData("algorithm2e-settings.json");
+      setAlgorithm2eSettings(stored);
+    } catch (error) {
+      console.warn("Failed to load algorithm2e settings", error);
+    }
+  }
+
+  openSetting() {
+    const draft = getDefaultAlgorithm2eSettings();
+    const controls = new Map<keyof Algorithm2eLabels, HTMLInputElement>();
+    const fontControls = new Map<keyof Algorithm2eFonts, HTMLSelectElement>();
+    let presetSelect: HTMLSelectElement;
+    let styleSelect: HTMLSelectElement;
+    let scopeLineSelect: HTMLSelectElement;
+    let blockEndingSelect: HTMLSelectElement;
+    let lineNumberSelect: HTMLSelectElement;
+
+    const commandNames: Record<keyof Algorithm2eLabels, string> = {
+      algorithm: "\\caption",
+      for: "\\For",
+      foreach: "\\ForEach",
+      while: "\\While",
+      do: "do",
+      if: "\\If",
+      then: "then",
+      else: "\\Else",
+      kwIn: "\\KwIn",
+      kwOut: "\\KwOut",
+      kwTo: "\\KwTo",
+      kwAnd: "\\KwAnd",
+      kwOr: "\\KwOr",
+      return: "\\Return",
+      tcp: "\\tcp",
+      tcc: "\\tcc",
+      endIf: "结束 If",
+      endLoop: "结束循环",
+      separator: "标点",
+    };
+    const i18n = this.i18n as Record<string, string>;
+    const settingLabels: Record<keyof Algorithm2eLabels, string> = {
+      algorithm: i18n.settingAlgorithm || "Algorithm label",
+      for: i18n.settingFor || "For",
+      foreach: i18n.settingForEach || "For each",
+      while: i18n.settingWhile || "While",
+      do: i18n.settingDo || "Do",
+      if: i18n.settingIf || "If",
+      then: i18n.settingThen || "Then",
+      else: i18n.settingElse || "Else",
+      kwIn: i18n.settingKwIn || "Input",
+      kwOut: i18n.settingKwOut || "Output",
+      kwTo: i18n.settingKwTo || "To",
+      kwAnd: i18n.settingKwAnd || "And",
+      kwOr: i18n.settingKwOr || "Or",
+      return: i18n.settingReturn || "Return",
+      tcp: i18n.settingTcp || "Inline comment",
+      tcc: i18n.settingTcc || "Block comment",
+      endIf: i18n.settingEndIf || "End if",
+      endLoop: i18n.settingEndLoop || "End loop",
+      separator: i18n.settingSeparator || "Punctuation",
+    };
+
+    const refreshInputs = () => {
+      presetSelect.value = draft.preset;
+      styleSelect.value = draft.style;
+      scopeLineSelect.value = draft.scopeLine ? "true" : "false";
+      blockEndingSelect.value = draft.blockEnding ? "true" : "false";
+      lineNumberSelect.value = draft.lineNumber ? "true" : "false";
+      fontControls.forEach((select, key) => {
+        select.value = draft.fonts[key];
+      });
+      controls.forEach((input, key) => {
+        input.value = draft.labels[key];
+      });
+    };
+
+    const createEditor = () => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "algorithm2e-settings-editor";
+
+      presetSelect = document.createElement("select");
+      presetSelect.className = "b3-select algorithm2e-settings-preset";
+      [
+        ["zh-CN", i18n.settingPresetChinese || "中文方案"],
+        ["en-US", i18n.settingPresetEnglish || "English preset"],
+        ["custom", i18n.settingPresetCustom || "自定义"],
+      ].forEach(([value, label]) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = label;
+        presetSelect.appendChild(option);
+      });
+      presetSelect.addEventListener("change", () => {
+        draft.preset = presetSelect.value as Algorithm2ePreset;
+        if (draft.preset !== "custom") draft.labels = labelsForPreset(draft.preset);
+        refreshInputs();
+      });
+      const styleLabel = document.createElement("label");
+      styleLabel.className = "algorithm2e-settings-style-label";
+      styleLabel.textContent = i18n.settingStyleTitle || "Rendering style";
+      styleSelect = document.createElement("select");
+      styleSelect.className = "b3-select algorithm2e-settings-style";
+      [
+        ["rounded", i18n.settingStyleRounded || "Rounded card"],
+        ["three-line", i18n.settingStyleThreeLine || "Three-line paper style"],
+      ].forEach(([value, label]) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = label;
+        styleSelect.appendChild(option);
+      });
+      styleSelect.addEventListener("change", () => {
+        draft.style = styleSelect.value as Algorithm2eStyle;
+      });
+      wrapper.append(styleLabel, styleSelect);
+
+      const renderOptions = document.createElement("div");
+      renderOptions.className = "algorithm2e-settings-render-options";
+      const createRenderOption = (
+        title: string,
+        className: string,
+        options: Array<[string, string]>,
+        onChange: (value: boolean) => void,
+      ): HTMLSelectElement => {
+        const optionWrapper = document.createElement("div");
+        optionWrapper.className = "algorithm2e-settings-render-option";
+        const label = document.createElement("label");
+        label.className = "algorithm2e-settings-render-option-label";
+        label.textContent = title;
+        const select = document.createElement("select");
+        select.className = `b3-select ${className}`;
+        options.forEach(([value, optionText]) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = optionText;
+          select.appendChild(option);
+        });
+        select.addEventListener("change", () => onChange(select.value === "true"));
+        optionWrapper.append(label, select);
+        renderOptions.appendChild(optionWrapper);
+        return select;
+      };
+      const booleanOptions = (show: string, hide: string): Array<[string, string]> => [
+        ["true", show],
+        ["false", hide],
+      ];
+      scopeLineSelect = createRenderOption(
+        i18n.settingScopeLineTitle || "Scope lines",
+        "algorithm2e-settings-scope",
+        booleanOptions(i18n.withScopeLine || "Show scope lines", i18n.withoutScopeLine || "Hide scope lines"),
+        (value) => { draft.scopeLine = value; },
+      );
+      blockEndingSelect = createRenderOption(
+        i18n.settingBlockEndingTitle || "Block endings",
+        "algorithm2e-settings-block-ending",
+        booleanOptions(i18n.withBlockEnding || "Show block endings", i18n.withoutBlockEnding || "Hide block endings"),
+        (value) => { draft.blockEnding = value; },
+      );
+      lineNumberSelect = createRenderOption(
+        i18n.settingLineNumberTitle || "Line numbers",
+        "algorithm2e-settings-line-number",
+        booleanOptions(i18n.withLineNumber || "Show line numbers", i18n.withoutLineNumber || "Hide line numbers"),
+        (value) => { draft.lineNumber = value; },
+      );
+      wrapper.appendChild(renderOptions);
+
+      const fontTitle = document.createElement("div");
+      fontTitle.className = "algorithm2e-settings-font-title";
+      fontTitle.textContent = i18n.settingFontTitle || "Fonts";
+      wrapper.appendChild(fontTitle);
+      const fontOptions: Record<keyof Algorithm2eFonts, Array<[string, string]>> = {
+        chinese: [
+          ["SimSun", i18n.settingFontSimSun || "宋体"],
+          ["Microsoft YaHei", i18n.settingFontYaHei || "微软雅黑"],
+          ["KaiTi", i18n.settingFontKaiTi || "楷体"],
+          ["SimHei", i18n.settingFontSimHei || "黑体"],
+        ],
+        english: [
+          ["Times New Roman", "Times New Roman"],
+          ["Arial", "Arial"],
+          ["Georgia", "Georgia"],
+          ["Courier New", "Courier New"],
+        ],
+        math: [
+          ["Times New Roman", "Times New Roman"],
+          ["Cambria Math", "Cambria Math"],
+          ["STIX Two Math", "STIX Two Math"],
+          ["Latin Modern Math", "Latin Modern Math"],
+        ],
+      };
+      const fontLabels: Record<keyof Algorithm2eFonts, string> = {
+        chinese: i18n.settingChineseFont || "Chinese font",
+        english: i18n.settingEnglishFont || "English font",
+        math: i18n.settingMathFont || "Formula font",
+      };
+      (Object.keys(fontOptions) as Array<keyof Algorithm2eFonts>).forEach((key) => {
+        const row = document.createElement("div");
+        row.className = "algorithm2e-settings-font-row";
+        const label = document.createElement("label");
+        label.textContent = fontLabels[key];
+        const select = document.createElement("select");
+        select.className = "b3-select";
+        fontOptions[key].forEach(([value, text]) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = text;
+          select.appendChild(option);
+        });
+        select.addEventListener("change", () => {
+          draft.fonts[key] = select.value;
+        });
+        fontControls.set(key, select);
+        row.append(label, select);
+        wrapper.appendChild(row);
+      });
+
+      const presetLabel = document.createElement("label");
+      presetLabel.className = "algorithm2e-settings-preset-label";
+      presetLabel.textContent = i18n.settingPresetLabel || i18n.settingPresetTitle || "Field preset";
+      wrapper.append(presetLabel, presetSelect);
+
+      const table = document.createElement("table");
+      table.className = "algorithm2e-settings-table";
+      const header = document.createElement("tr");
+      [i18n.settingCommand || "Command", i18n.settingRenderResult || "Rendered text"].forEach((text) => {
+        const cell = document.createElement("th");
+        cell.textContent = text;
+        header.appendChild(cell);
+      });
+      table.appendChild(header);
+
+      LABEL_KEYS.forEach((key) => {
+        const row = document.createElement("tr");
+        const commandCell = document.createElement("td");
+        commandCell.textContent = `${commandNames[key]} (${settingLabels[key]})`;
+        const valueCell = document.createElement("td");
+        const input = document.createElement("input");
+        input.className = "b3-text-field";
+        input.type = "text";
+        input.addEventListener("input", () => {
+          draft.preset = "custom";
+          draft.labels[key] = input.value;
+          presetSelect.value = "custom";
+        });
+        controls.set(key, input);
+        commandCell.title = settingLabels[key];
+        valueCell.appendChild(input);
+        row.append(commandCell, valueCell);
+        table.appendChild(row);
+      });
+      wrapper.appendChild(table);
+      refreshInputs();
+      return wrapper;
+    };
+
+    const setting = new Setting({
+      height: "75vh",
+      width: "720px",
+      confirmCallback: async () => {
+        const saved = setAlgorithm2eSettings(draft);
+        await this.saveData("algorithm2e-settings.json", saved);
+        turnOnAllPseudocodeView();
+      },
+    });
+    setting.addItem({
+      title: i18n.settingOptionsTitle || "Rendering options",
+      description: i18n.settingPresetDescription || "The setting applies to all algorithm2e blocks.",
+      direction: "column",
+      createActionElement: createEditor,
+    });
+    setting.open(i18n.settingTitle || "Algorithm2e settings");
+  }
 
   private initMetaInfo() {
     const frontEnd = getFrontend();
@@ -128,11 +411,8 @@ export default class PseudocodePlugin extends Plugin {
     <div class="edit-dialog-header resize__move"></div>
     <div class="edit-dialog-container">
         <div class="edit-dialog-toolbar">
-          <input class="b3-text-field" data-type="algorithm-label" type="text" placeholder="${this.i18n.algorithmLabelPlaceholder}">
+          <span class="edit-dialog-toolbar-title">${this.i18n.algorithm2eEditorTitle}</span>
           <input class="b3-text-field" data-type="algorithm-number" type="number" placeholder="${this.i18n.algorithmNumberPlaceholder}">
-          <select class="b3-select" data-type="line-number"><option value="false">${this.i18n.withoutLineNumber}</option><option value="true">${this.i18n.withLineNumber}</option></select>
-          <select class="b3-select" data-type="block-ending"><option value="false">${this.i18n.withoutBlockEnding}</option><option value="true">${this.i18n.withBlockEnding}</option></select>
-          <select class="b3-select" data-type="scope-line"><option value="false">${this.i18n.withoutScopeLine}</option><option value="true">${this.i18n.withScopeLine}</option></select>
         </div>
         <div class="fn__hr--b"></div>
         <div class="edit-dialog-editor"></div>
@@ -160,11 +440,7 @@ export default class PseudocodePlugin extends Plugin {
 
     const blockID = blockElement.getAttribute("data-node-id");
     const pseudocodeConfig = await getBlockPseudocodeConfigByID(blockID);
-    (dialog.element.querySelector("[data-type=algorithm-label]") as HTMLInputElement).value = pseudocodeConfig.algorithmLabel;
     (dialog.element.querySelector("[data-type=algorithm-number]") as HTMLInputElement).value = pseudocodeConfig.algorithmNumber;
-    (dialog.element.querySelector("[data-type=line-number]") as HTMLSelectElement).value = pseudocodeConfig.lineNumber;
-    (dialog.element.querySelector("[data-type=block-ending]") as HTMLSelectElement).value = pseudocodeConfig.blockEnding;
-    (dialog.element.querySelector("[data-type=scope-line]") as HTMLSelectElement).value = pseudocodeConfig.scopeLine;
 
     // 获取伪代码源码
     const code = getBlockPseudocodeCode(blockElement).trim();
@@ -180,11 +456,7 @@ export default class PseudocodePlugin extends Plugin {
       dialog.element.querySelector("[data-action=compiling]").classList.toggle("fn__none", false);
       dialog.element.querySelector(".edit-dialog-message").classList.toggle("fn__none", true);
 
-      pseudocodeConfig.algorithmLabel = (dialog.element.querySelector("[data-type=algorithm-label]") as HTMLInputElement).value;
       pseudocodeConfig.algorithmNumber = (dialog.element.querySelector("[data-type=algorithm-number]") as HTMLInputElement).value;
-      pseudocodeConfig.lineNumber = (dialog.element.querySelector("[data-type=line-number]") as HTMLSelectElement).value;
-      pseudocodeConfig.blockEnding = (dialog.element.querySelector("[data-type=block-ending]") as HTMLSelectElement).value;
-      pseudocodeConfig.scopeLine = (dialog.element.querySelector("[data-type=scope-line]") as HTMLSelectElement).value;
       const code = editor.getContent().trim();
 
       setAutoAlgorithmNumber(blockElement, pseudocodeConfig);
@@ -240,9 +512,6 @@ export default class PseudocodePlugin extends Plugin {
               const code = response.data["custom-latex-code"] || "";
               pseudocodeConfig.algorithmLabel = response.data["custom-titile-prefix"] || pseudocodeConfig.algorithmLabel;
               pseudocodeConfig.algorithmNumber = response.data["custom-caption-count"] || pseudocodeConfig.algorithmNumber;
-              pseudocodeConfig.lineNumber = response.data["custom-line-number"] || pseudocodeConfig.lineNumber;
-              pseudocodeConfig.blockEnding = response.data["custom-block-ending"] || pseudocodeConfig.blockEnding;
-              pseudocodeConfig.scopeLine = response.data["custom-scope-line"] || pseudocodeConfig.scopeLine;
 
               setAutoAlgorithmNumber(selectedElement, pseudocodeConfig);
               const compileResult = compilePseudocode(code, pseudocodeConfig);

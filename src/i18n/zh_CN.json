@@ -10,6 +10,7 @@
   "turnOffPseudocodeView": "关闭伪代码视图",
   "transformPseudocode": "转换为嵌入式伪代码",
   "algorithmLabelPlaceholder": "算法标签",
+  "algorithm2eEditorTitle": "Algorithm2e CodeMirror 编辑器",
   "algorithmNumberPlaceholder": "自动编号",
   "withLineNumber": "显示行号",
   "withoutLineNumber": "不显示行号",
@@ -17,4 +18,47 @@
   "withoutBlockEnding": "不显示块结束符",
   "withScopeLine": "显示作用域线",
   "withoutScopeLine": "不显示作用域线"
+  ,"settingTitle": "Algorithm2e 全局渲染设置"
+  ,"settingPresetTitle": "字段方案"
+  ,"settingOptionsTitle": "渲染选项"
+  ,"settingPresetLabel": "字段方案"
+  ,"settingPresetDescription": "配置会应用到所有 algorithm2e 伪代码块。保存后当前页面会立即刷新。"
+  ,"settingPresetChinese": "中文方案"
+  ,"settingPresetEnglish": "英文方案"
+  ,"settingPresetCustom": "自定义方案"
+  ,"settingCommand": "命令"
+  ,"settingRenderResult": "渲染结果"
+  ,"settingAlgorithm": "算法标签"
+  ,"settingFor": "For 循环"
+  ,"settingForEach": "ForEach 循环"
+  ,"settingWhile": "While 循环"
+  ,"settingDo": "执行"
+  ,"settingIf": "条件"
+  ,"settingThen": "那么"
+  ,"settingElse": "否则"
+  ,"settingKwIn": "输入"
+  ,"settingKwOut": "输出"
+  ,"settingKwTo": "范围连接词"
+  ,"settingKwAnd": "且"
+  ,"settingKwOr": "或"
+  ,"settingReturn": "返回"
+  ,"settingTcp": "行尾注释"
+  ,"settingTcc": "块注释"
+  ,"settingEndIf": "条件结束"
+  ,"settingEndLoop": "循环结束"
+  ,"settingSeparator": "标点"
+  ,"settingStyleTitle": "伪代码样式"
+  ,"settingStyleRounded": "圆角卡片"
+  ,"settingStyleThreeLine": "论文三线样式"
+  ,"settingScopeLineTitle": "是否显示作用域线"
+  ,"settingBlockEndingTitle": "是否显示块结束符"
+  ,"settingLineNumberTitle": "是否显示行号"
+  ,"settingFontTitle": "字体选择"
+  ,"settingChineseFont": "中文字体"
+  ,"settingEnglishFont": "英文字体"
+  ,"settingMathFont": "公式字体"
+  ,"settingFontSimSun": "宋体"
+  ,"settingFontYaHei": "微软雅黑"
+  ,"settingFontKaiTi": "楷体"
+  ,"settingFontSimHei": "黑体"
 }

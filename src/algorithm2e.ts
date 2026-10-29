@@ -1,18 +1,19 @@
+import { getAlgorithm2eLabels, getDefaultAlgorithm2eSettings, Algorithm2eLabels } from "./settings"
+
 type AlgorithmNode =
   | { type: "caption"; text: string }
-  | { type: "input"; text: string }
-  | { type: "output"; text: string }
-  | { type: "return"; text: string }
-  | { type: "if"; condition: string; body: AlgorithmNode[]; elseBody?: AlgorithmNode[] }
-  | { type: "loop"; kind: "for" | "foreach" | "while"; expression: string; body: AlgorithmNode[] }
-  | { type: "comment"; text: string }
-  | { type: "raw"; text: string }
+  | { type: "input"; text: string; comment?: string; commentAlign?: "left" | "right"; terminated?: boolean }
+  | { type: "output"; text: string; comment?: string; commentAlign?: "left" | "right"; terminated?: boolean }
+  | { type: "return"; text: string; comment?: string; commentAlign?: "left" | "right"; terminated?: boolean }
+  | { type: "if"; condition: string; body: AlgorithmNode[]; elseBody?: AlgorithmNode[]; comment?: string; commentAlign?: "left" | "right"; terminated?: boolean }
+  | { type: "loop"; kind: "for" | "foreach" | "while"; expression: string; body: AlgorithmNode[]; comment?: string; commentAlign?: "left" | "right"; terminated?: boolean }
+  | { type: "comment"; kind: "tcp" | "tcc"; text: string; align?: "left" | "right" }
+  | { type: "raw"; text: string; comment?: string; commentAlign?: "left" | "right"; terminated?: boolean }
 
 interface AlgorithmDocument {
   nodes: AlgorithmNode[]
   warnings: string[]
 }
-
 interface GroupResult {
   value: string
   end: number
@@ -29,6 +30,10 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;")
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;")
+}
+
+function cssFontValue(value: string): string {
+  return `"${value.replace(/[^a-zA-Z0-9\u4e00-\u9fff ,.'_-]/g, "").replace(/"/g, "")}"`
 }
 
 function readCommand(source: string, start: number): { name: string; end: number } | null {
@@ -129,12 +134,51 @@ function readCommandBody(source: string, commandEnd: number): { argument: GroupR
   return { argument, body }
 }
 
+function readSquareGroup(source: string, start: number): GroupResult | null {
+  const open = skipWhitespace(source, start)
+  if (source[open] !== "[") return null
+  const close = source.indexOf("]", open + 1)
+  if (close < 0) return null
+  return { value: source.slice(open + 1, close), end: close + 1 }
+}
+
+function readCommentCommand(source: string, command: { name: string; end: number }): { text: string; end: number; align: "left" | "right" } | null {
+  let index = command.end
+  if (source[index] === "*") index++
+  const direction = readSquareGroup(source, index)
+  if (direction) index = direction.end
+  const group = readGroup(source, index)
+  if (!group) return null
+  return {
+    text: group.value.trim(),
+    end: group.end,
+    align: direction?.value.trim().toLowerCase() === "r" ? "right" : "left",
+  }
+}
+
+function readInlineStatement(source: string, start: number): GroupResult | null {
+  let index = start
+  while (index < source.length) {
+    if (source[index] === "\n") break
+    if (source[index] === "\\") break
+    if (source[index] === "$") {
+      index = readMathEnd(source, index) ?? index + 1
+      continue
+    }
+    index++
+  }
+  const value = source.slice(start, index).trim()
+  return value ? { value, end: index } : null
+}
+
 function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
   const nodes: AlgorithmNode[] = []
   let index = 0
+  let lineHasContent = false
 
   while (index < source.length) {
     if (/\s/.test(source[index])) {
+      if (source[index] === "\n") lineHasContent = false
       index++
       continue
     }
@@ -155,7 +199,10 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
         end++
       }
       const text = source.slice(index, end).trim()
-      if (text) nodes.push({ type: "raw", text })
+      if (text) {
+        nodes.push({ type: "raw", text })
+        lineHasContent = true
+      }
       index = end
       continue
     }
@@ -163,6 +210,10 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
     const name = command.name.toLowerCase()
 
     if (name === ";") {
+      const previous = nodes[nodes.length - 1]
+      if (lineHasContent && previous && previous.type !== "caption" && previous.type !== "comment") {
+        (previous as Extract<AlgorithmNode, { type: "input" | "output" | "return" | "if" | "loop" | "raw" }>).terminated = true
+      }
       index = command.end
       continue
     }
@@ -171,6 +222,16 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
       const group = readGroup(source, command.end)
       if (group) {
         nodes.push({ type: "caption", text: group.value.trim() })
+        lineHasContent = true
+        index = group.end
+        continue
+      }
+    }
+
+    if (name === "label") {
+      const group = readGroup(source, command.end)
+      if (group) {
+        // Labels are LaTeX cross-reference metadata and have no visual output.
         index = group.end
         continue
       }
@@ -180,12 +241,13 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
       const group = readGroup(source, command.end)
       if (group) {
         nodes.push({ type: name === "kwin" ? "input" : "output", text: group.value.trim() })
+        lineHasContent = true
         index = group.end
         continue
       }
     }
 
-    if (name === "if") {
+    if (name === "if" || name === "eif") {
       const parts = readCommandBody(source, command.end)
       if (parts) {
         const node: Extract<AlgorithmNode, { type: "if" }> = {
@@ -194,15 +256,26 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
           body: parseContent(parts.body.value, warnings),
         }
         let next = skipWhitespace(source, parts.body.end)
-        const elseCommand = readCommand(source, next)
-        if (elseCommand && elseCommand.name.toLowerCase() === "else") {
-          const elseBody = readGroup(source, elseCommand.end)
+        if (name === "eif") {
+          const elseBody = readGroup(source, next)
           if (elseBody) {
             node.elseBody = parseContent(elseBody.value, warnings)
             next = elseBody.end
+          } else {
+            warnings.push("\\eIf 缺少否定分支代码块")
+          }
+        } else {
+          const elseCommand = readCommand(source, next)
+          if (elseCommand && elseCommand.name.toLowerCase() === "else") {
+            const elseBody = readGroup(source, elseCommand.end)
+            if (elseBody) {
+              node.elseBody = parseContent(elseBody.value, warnings)
+              next = elseBody.end
+            }
           }
         }
         nodes.push(node)
+        lineHasContent = true
         index = next
         continue
       }
@@ -218,6 +291,7 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
           expression: parts.argument.value.trim(),
           body: parseContent(parts.body.value, warnings),
         })
+        lineHasContent = true
         index = parts.body.end
         continue
       }
@@ -225,10 +299,18 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
     }
 
     if (name === "tcp" || name === "tcc") {
-      const group = readGroup(source, command.end)
-      if (group) {
-        nodes.push({ type: "comment", text: group.value.trim() })
-        index = group.end
+      const comment = readCommentCommand(source, command)
+      if (comment) {
+        const previous = nodes[nodes.length - 1]
+        if (name === "tcp" && lineHasContent && previous && previous.type !== "caption" && previous.type !== "comment") {
+          const previousComment = previous as Extract<AlgorithmNode, { type: "input" | "output" | "return" | "if" | "loop" | "raw" }>
+          previousComment.comment = comment.text
+          previousComment.commentAlign = comment.align
+        } else {
+          nodes.push({ type: "comment", kind: name, text: comment.text, align: comment.align })
+          lineHasContent = true
+        }
+        index = comment.end
         continue
       }
     }
@@ -236,8 +318,18 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
     if (name === "return") {
       const group = readGroup(source, command.end)
       if (group) {
-        nodes.push({ type: "return", text: group.value.trim() })
+        const node: Extract<AlgorithmNode, { type: "return" }> = { type: "return", text: group.value.trim() }
+        nodes.push(node)
+        lineHasContent = true
         index = group.end
+        continue
+      }
+      const inline = readInlineStatement(source, command.end)
+      if (inline) {
+        const node: Extract<AlgorithmNode, { type: "return" }> = { type: "return", text: inline.value }
+        nodes.push(node)
+        lineHasContent = true
+        index = inline.end
         continue
       }
     }
@@ -246,86 +338,112 @@ function parseContent(source: string, warnings: string[]): AlgorithmNode[] {
     const rawEnd = group ? group.end : command.end
     warnings.push(`暂不支持命令 \\${command.name}，已保留原文`)
     nodes.push({ type: "raw", text: source.slice(index, rawEnd).trim() })
+    lineHasContent = true
     index = rawEnd
   }
 
   return nodes
 }
 
-function renderText(value: string): string {
+function renderText(value: string, labels: Algorithm2eLabels): string {
   return escapeHtml(value)
     .replace(/\\textbf\{([^{}]*)\}/g, "<strong>$1</strong>")
-    .replace(/\\KwTo\b/g, "至")
-    .replace(/\\KwAnd\b/g, "且")
-    .replace(/\\KwOr\b/g, "或")
+    .replace(/\\KwTo\b/g, `<span class="algorithm2e-keyword">${escapeHtml(labels.kwTo)}</span>`)
+    .replace(/\\KwAnd\b/g, `<span class="algorithm2e-keyword">${escapeHtml(labels.kwAnd)}</span>`)
+    .replace(/\\KwOr\b/g, `<span class="algorithm2e-keyword">${escapeHtml(labels.kwOr)}</span>`)
 }
 
 function renderMath(tex: string, displayMode: boolean): string {
+  // Keep norm delimiters as literal ASCII bars. Some fonts used by SiYuan
+  // render the Unicode double-bar glyph (∥) as two slashes.
+  const normalizedTex = tex
+    .replace(/\\Vert\b/g, "\\text{ || }")
+    .replace(/\\\|/g, "\\text{ || }")
   const katex = typeof window !== "undefined" ? window.katex : undefined
   if (katex) {
     try {
-      return katex.renderToString(tex, { displayMode, throwOnError: false })
+      return katex.renderToString(normalizedTex, { displayMode, throwOnError: false })
     } catch {
       // Fall back to escaped TeX when a particular expression is unsupported.
     }
   }
-  return `<span class="algorithm2e-math">${escapeHtml(displayMode ? `\\[${tex}\\]` : `$${tex}$`)}</span>`
+  return `<span class="algorithm2e-math">${escapeHtml(displayMode ? `\\[${normalizedTex}\\]` : `$${normalizedTex}$`)}</span>`
 }
 
-function renderInline(value: string): string {
+function renderInline(value: string, labels: Algorithm2eLabels): string {
   const mathPattern = /\$([\s\S]*?)\$|\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]/g
   let result = ""
   let lastIndex = 0
   for (const match of value.matchAll(mathPattern)) {
     const index = match.index ?? 0
-    result += renderText(value.slice(lastIndex, index))
+    result += renderText(value.slice(lastIndex, index), labels)
     const tex = match[1] ?? match[2] ?? match[3] ?? ""
     result += renderMath(tex, Boolean(match[3]))
     lastIndex = index + match[0].length
   }
-  return result + renderText(value.slice(lastIndex))
+  return result + renderText(value.slice(lastIndex), labels)
 }
 
 function renderLine(content: string, level: number, kind: string, config: IPseudocodeConfig, state: RenderState): string {
-  state.line++
+  const excludesFromLineNumber = kind === "input" || kind === "output"
+  if (!excludesFromLineNumber) state.line++
   const lineNumber = config.lineNumber === "true"
-    ? `<span class="algorithm2e-line-number">${state.line}</span>`
+    ? `<span class="algorithm2e-line-number">${excludesFromLineNumber ? "" : state.line}</span>`
     : ""
-  return `<div class="algorithm2e-line algorithm2e-${kind}" style="--algorithm2e-level:${level}">${lineNumber}<span class="algorithm2e-content">${content}</span></div>`
+  const scopeClass = config.scopeLine === "true" && level > 0 ? " algorithm2e-scope-line" : ""
+  return `<div class="algorithm2e-line algorithm2e-${kind}${scopeClass}" style="--algorithm2e-level:${level}">${lineNumber}<span class="algorithm2e-content">${content}</span></div>`
+}
+
+function renderInlineComment(comment: string | undefined, labels: Algorithm2eLabels, align: "left" | "right" = "left"): string {
+  return comment
+    ? `<span class="algorithm2e-inline-comment${align === "right" ? " algorithm2e-right-comment" : ""}">${escapeHtml(labels.tcp)} ${renderInline(comment, labels)}</span>`
+    : ""
+}
+
+function blockCommentEnd(marker: string): string {
+  if (marker === "/*") return "*/"
+  if (marker === "<!--") return "-->"
+  return marker
 }
 
 function renderNodes(nodes: AlgorithmNode[], level: number, config: IPseudocodeConfig, state: RenderState): string {
+  const labels = getAlgorithm2eLabels()
   return nodes.map((node) => {
     switch (node.type) {
       case "caption":
-        return `<div class="algorithm2e-caption"><span class="algorithm2e-caption-label">${escapeHtml(config.algorithmLabel || "Algorithm")} ${escapeHtml(config.algorithmNumber || config._defaultAlgorithmNumber)}:</span> ${renderInline(node.text)}</div>`
+        return `<div class="algorithm2e-caption"><span class="algorithm2e-caption-label">${escapeHtml(labels.algorithm)} ${escapeHtml(config.algorithmNumber || config._defaultAlgorithmNumber)}${escapeHtml(labels.separator)}</span> ${renderInline(node.text, labels)}</div>`
       case "input":
-        return renderLine(`<span class="algorithm2e-keyword">输入：</span>${renderInline(node.text)}`, level, "input", config, state)
+        return renderLine(`<span class="algorithm2e-keyword">${escapeHtml(labels.kwIn)}${escapeHtml(labels.separator)}</span> ${renderInline(node.text, labels)}${node.terminated ? ";" : ""}${renderInlineComment(node.comment, labels, node.commentAlign)}`, level, "input", config, state)
       case "output":
-        return renderLine(`<span class="algorithm2e-keyword">输出：</span>${renderInline(node.text)}`, level, "output", config, state)
+        return renderLine(`<span class="algorithm2e-keyword">${escapeHtml(labels.kwOut)}${escapeHtml(labels.separator)}</span> ${renderInline(node.text, labels)}${node.terminated ? ";" : ""}${renderInlineComment(node.comment, labels, node.commentAlign)}`, level, "output", config, state)
       case "return":
-        return renderLine(`<span class="algorithm2e-keyword">返回</span> ${renderInline(node.text)}`, level, "return", config, state)
+        return renderLine(`<span class="algorithm2e-keyword">${escapeHtml(labels.return)}</span> ${renderInline(node.text, labels)}${node.terminated ? ";" : ""}${renderInlineComment(node.comment, labels, node.commentAlign)}`, level, "return", config, state)
       case "comment":
-        return renderLine(`<span class="algorithm2e-comment-marker">注：</span>${renderInline(node.text)}`, level, "comment", config, state)
+        return node.kind === "tcc"
+          ? renderLine(`<span class="algorithm2e-comment-marker">${escapeHtml(labels.tcc)} ${renderInline(node.text, labels)} ${escapeHtml(blockCommentEnd(labels.tcc))}</span>`, level, "comment", config, state)
+          : renderLine(`<span class="algorithm2e-comment-marker${node.align === "right" ? " algorithm2e-right-comment" : ""}">${escapeHtml(labels.tcp)} ${renderInline(node.text, labels)}</span>`, level, "comment", config, state)
       case "loop": {
-        const keyword = node.kind === "foreach" ? "对每个" : node.kind === "while" ? "当" : "对于"
+        const keyword = node.kind === "foreach" ? labels.foreach : node.kind === "while" ? labels.while : labels.for
+        const header = renderLine(`<span class="algorithm2e-keyword">${escapeHtml(keyword)}</span> ${renderInline(node.expression, labels)} <span class="algorithm2e-keyword">${escapeHtml(labels.do)}</span>${renderInlineComment(node.comment, labels, node.commentAlign)}`, level, "loop", config, state)
+        const body = renderNodes(node.body, level + 1, config, state)
         const ending = config.blockEnding === "true"
-          ? renderLine(`<span class="algorithm2e-keyword">结束${node.kind === "while" ? "当" : "循环"}</span>`, level, "end", config, state)
+          ? renderLine(`<span class="algorithm2e-keyword">${escapeHtml(labels.endLoop)}</span>`, level, "end", config, state)
           : ""
-        return `${renderLine(`<span class="algorithm2e-keyword">${keyword}</span> ${renderInline(node.expression)}：`, level, "loop", config, state)}${renderNodes(node.body, level + 1, config, state)}${ending}`
+        return `${header}${body}${ending}`
       }
       case "if": {
+        const header = renderLine(`<span class="algorithm2e-keyword">${escapeHtml(labels.if)}</span> ${renderInline(node.condition, labels)} <span class="algorithm2e-keyword">${escapeHtml(labels.then)}</span>${renderInlineComment(node.comment, labels, node.commentAlign)}`, level, "if", config, state)
         const body = renderNodes(node.body, level + 1, config, state)
         const elsePart = node.elseBody
-          ? `${renderLine(`<span class="algorithm2e-keyword">否则</span>`, level, "else", config, state)}${renderNodes(node.elseBody, level + 1, config, state)}`
+          ? `${renderLine(`<span class="algorithm2e-keyword">${escapeHtml(labels.else)}</span>`, level, "else", config, state)}${renderNodes(node.elseBody, level + 1, config, state)}`
           : ""
         const ending = config.blockEnding === "true"
-          ? renderLine(`<span class="algorithm2e-keyword">结束如果</span>`, level, "end", config, state)
+          ? renderLine(`<span class="algorithm2e-keyword">${escapeHtml(labels.endIf)}</span>`, level, "end", config, state)
           : ""
-        return `${renderLine(`<span class="algorithm2e-keyword">如果</span> ${renderInline(node.condition)}：`, level, "if", config, state)}${body}${elsePart}${ending}`
+        return `${header}${body}${elsePart}${ending}`
       }
       case "raw":
-        return node.text.split(/\r?\n/).map((line) => renderLine(renderInline(line), level, "raw", config, state)).join("")
+        return node.text.split(/\r?\n/).map((line) => renderLine(`${renderInline(line, labels)}${node.terminated ? ";" : ""}${renderInlineComment(node.comment, labels, node.commentAlign)}`, level, "raw", config, state)).join("")
     }
   }).join("")
 }
@@ -344,7 +462,13 @@ export function compileAlgorithm2e(code: string, config: IPseudocodeConfig): IRe
   const warningHtml = warnings.length
     ? `<div class="algorithm2e-diagnostics">${warnings.map((warning) => `<div>⚠ ${escapeHtml(warning)}</div>`).join("")}</div>`
     : ""
-  result.html = `<div class="algorithm2e-root" data-style="ruled">${warningHtml}<div class="algorithm2e-body">${renderNodes(document.nodes, 0, config, state)}</div></div>`
+  const settings = getDefaultAlgorithm2eSettings()
+  const rootStyle = [
+    `--algorithm2e-font-chinese:${cssFontValue(settings.fonts.chinese)}`,
+    `--algorithm2e-font-english:${cssFontValue(settings.fonts.english)}`,
+    `--algorithm2e-font-math:${cssFontValue(settings.fonts.math)}`,
+  ].join(";")
+  result.html = `<div class="algorithm2e-root" data-style="${settings.style}" style="${escapeHtml(rootStyle)}">${warningHtml}<div class="algorithm2e-body">${renderNodes(document.nodes, 0, config, state)}</div></div>`
   result.ok = true
   result.message = warnings.join("\n")
   return result

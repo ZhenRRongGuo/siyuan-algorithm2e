@@ -10,6 +10,7 @@
   "turnOffPseudocodeView": "Disable Pseudocode View",
   "transformPseudocode": "Convert to Embed Pseudocode",
   "algorithmLabelPlaceholder": "Algorithm Label",
+  "algorithm2eEditorTitle": "Algorithm2e CodeMirror editor",
   "algorithmNumberPlaceholder": "Auto Number",
   "withLineNumber": "Show Line Number",
   "withoutLineNumber": "Without Line Number",
@@ -17,4 +18,47 @@
   "withoutBlockEnding": "Without Block Ending",
   "withScopeLine": "Show Scope Line",
   "withoutScopeLine": "Without Scope Line"
+  ,"settingTitle": "Algorithm2e rendering settings"
+  ,"settingPresetTitle": "Field preset"
+  ,"settingOptionsTitle": "Rendering options"
+  ,"settingPresetLabel": "Field preset"
+  ,"settingPresetDescription": "The setting applies to all algorithm2e blocks and refreshes the current page after saving."
+  ,"settingPresetChinese": "Chinese preset"
+  ,"settingPresetEnglish": "English preset"
+  ,"settingPresetCustom": "Custom preset"
+  ,"settingCommand": "Command"
+  ,"settingRenderResult": "Rendered text"
+  ,"settingAlgorithm": "Algorithm label"
+  ,"settingFor": "For loop"
+  ,"settingForEach": "ForEach loop"
+  ,"settingWhile": "While loop"
+  ,"settingDo": "Do"
+  ,"settingIf": "Condition"
+  ,"settingThen": "Then"
+  ,"settingElse": "Else"
+  ,"settingKwIn": "Input"
+  ,"settingKwOut": "Output"
+  ,"settingKwTo": "Range connector"
+  ,"settingKwAnd": "And"
+  ,"settingKwOr": "Or"
+  ,"settingReturn": "Return"
+  ,"settingTcp": "Line comment"
+  ,"settingTcc": "Block comment"
+  ,"settingEndIf": "End condition"
+  ,"settingEndLoop": "End loop"
+  ,"settingSeparator": "Punctuation"
+  ,"settingStyleTitle": "Rendering style"
+  ,"settingStyleRounded": "Rounded card"
+  ,"settingStyleThreeLine": "Three-line paper style"
+  ,"settingScopeLineTitle": "Show scope lines"
+  ,"settingBlockEndingTitle": "Show block endings"
+  ,"settingLineNumberTitle": "Show line numbers"
+  ,"settingFontTitle": "Font selection"
+  ,"settingChineseFont": "Chinese font"
+  ,"settingEnglishFont": "English font"
+  ,"settingMathFont": "Formula font"
+  ,"settingFontSimSun": "SimSun"
+  ,"settingFontYaHei": "Microsoft YaHei"
+  ,"settingFontKaiTi": "KaiTi"
+  ,"settingFontSimHei": "SimHei"
 }
